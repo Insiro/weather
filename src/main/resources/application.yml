@@ -1,12 +1,14 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/weather_db
-    username: root
+    url: jdbc:h2:mem:~/h2/weather_db
+    username: sa
     password: password
+    driver-class-name: org.h2.Driver
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: update
+
 logging:
   file:
     name: logs/weather.log
