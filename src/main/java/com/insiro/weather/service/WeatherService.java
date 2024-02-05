@@ -27,6 +27,10 @@ public class WeatherService {
         return weatherRepository.findAll();
     }
 
+    public List<Weather> getWeathers(City city){
+        return weatherRepository.findByCity(city);
+    }
+
     public Weather createWeather(City city, NewWeatherDTO newWeatherDTO) {
         Weather weather = new Weather();
         weather.setDate(newWeatherDTO.getDate());

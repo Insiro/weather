@@ -42,6 +42,7 @@ public class WeatherControllerTest extends AbstractControllerTest {
     }
 
     @BeforeEach
+    @Override
     public void init() {
         MockitoAnnotations.openMocks(this);
         WeatherController weatherController = new WeatherController(weatherService, cityService);

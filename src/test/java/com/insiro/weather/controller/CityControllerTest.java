@@ -26,6 +26,7 @@ public class CityControllerTest extends AbstractControllerTest{
     private CityService cityService;
     private MockMvc mockMvc;
     @BeforeEach
+    @Override
     public void init() {
         MockitoAnnotations.openMocks(this);
         CityController cityController = new CityController(cityService);
