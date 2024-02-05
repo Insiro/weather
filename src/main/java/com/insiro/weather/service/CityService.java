@@ -2,12 +2,13 @@ package com.insiro.weather.service;
 
 import com.insiro.weather.domain.dto.CityDTO;
 import com.insiro.weather.domain.model.City;
+import com.insiro.weather.exception.CityNameConflictException;
+import com.insiro.weather.exception.CityNotFoundException;
 import com.insiro.weather.repository.CityRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class CityService {
@@ -17,22 +18,38 @@ public class CityService {
         this.cityRepository = cityRepository;
     }
 
-    public CityDTO addCity(String name) {
-        City city = new City();
-        city.setName(name);
-        city = cityRepository.save(city);
-        return new CityDTO(city);
+    public City addCity(CityDTO cityDTO) {
+        if (this.getCityByName(cityDTO.getName()).isEmpty())
+            throw new CityNameConflictException(cityDTO.getName());
+
+        City city =createCityFromDTO(cityDTO);
+        return cityRepository.save(city);
     }
 
-    public Optional<CityDTO> getCityByName(String name) {
-        Optional<City> city = cityRepository.findByName(name);
-        if (city.isEmpty()) return Optional.empty();
-        return Optional.of(new CityDTO(city.get()));
+    public Optional<City> getCityByName(String name) {
+        return cityRepository.findByName(name);
     }
-    public List<CityDTO> getAllCities(){
-        return cityRepository.findAll().stream().map(CityDTO::new).collect(Collectors.toList());
+
+    public List<City> getAllCities(){
+        return cityRepository.findAll();
     }
-    public void removeCity(String name) {
-        cityRepository.deleteByName(name);
+    public City updateCity(String cityName, CityDTO cityDTO) {
+        Optional<City> optionalCity = getCityByName(cityName);
+        if (optionalCity.isEmpty())
+            throw new CityNotFoundException(cityName);
+        if (getCityByName(cityName).isPresent())
+            throw new CityNameConflictException(cityName);
+
+        City newCity = createCityFromDTO(cityDTO);
+        newCity.setId(optionalCity.get().getId());
+        return cityRepository.save(newCity);
+    }
+    public City createCityFromDTO(CityDTO cityDTO) {
+        City city = new City();
+        city.setName(cityDTO.getName());
+        Long id = city.getId();
+        if (id!= null)
+            city.setId(id);
+        return city;
     }
 }
