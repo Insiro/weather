@@ -1,14 +1,15 @@
 package com.insiro.weather.service;
 
 import com.insiro.weather.domain.dto.NewWeatherDTO;
+import com.insiro.weather.domain.dto.UpdateWeatherDTO;
 import com.insiro.weather.domain.dto.WeatherDTO;
+import com.insiro.weather.domain.model.City;
 import com.insiro.weather.domain.model.Weather;
 import com.insiro.weather.repository.WeatherRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class WeatherService {
@@ -17,26 +18,52 @@ public class WeatherService {
     public WeatherService(WeatherRepository weatherRepository) {
         this.weatherRepository = weatherRepository;
     }
-    public Optional<WeatherDTO> getWeatherById(Long id){
-        Weather weather =  weatherRepository.findById(id).orElse(null);
-        if (weather ==null)
-            return Optional.empty();
-        return Optional.of( new WeatherDTO(weather));
+
+    public Optional<Weather> getWeatherById(Long id) {
+        return weatherRepository.findById(id);
     }
-    public List<WeatherDTO> getWeathers(){
-        List<Weather> weathers = weatherRepository.findAll();
-        return weathers.stream().map(weather-> new WeatherDTO(weather)).collect(Collectors.toList());
+
+    public List<Weather> getWeathers() {
+        return weatherRepository.findAll();
     }
-    public WeatherDTO createWeather(NewWeatherDTO newWeatherDTO){
+
+    public Weather createWeather(City city, NewWeatherDTO newWeatherDTO) {
         Weather weather = new Weather();
         weather.setDate(newWeatherDTO.getDate());
         weather.setHumidity(newWeatherDTO.getHumidity());
         weather.setTemperature(newWeatherDTO.getTemperature());
         weather.setPerceivedTemperature(newWeatherDTO.getHumidity());
-        Weather saved = this.weatherRepository.save(weather);
-        return new WeatherDTO(saved);
+        weather.setCity(city);
+        weather = this.weatherRepository.save(weather);
+        return weather;
     }
-    public void deleteWeather(Long id){
+
+    public void deleteWeather(Long id) {
         this.weatherRepository.deleteById(id);
     }
+
+    public Optional<WeatherDTO> updateWeather(Long id, UpdateWeatherDTO weatherDTO, Optional<City> city) {
+        Optional<Weather> optionalWeather = weatherRepository.findById(id);
+        if (optionalWeather.isEmpty())
+            return Optional.empty();
+
+        Weather weather = optionalWeather.get();
+
+        if (weatherDTO.getDate() != null)
+            weather.setDate(weatherDTO.getDate());
+        if (weatherDTO.getHumidity() != null)
+            weather.setHumidity(weatherDTO.getHumidity());
+        if (weatherDTO.getPerceivedTemperature() != null)
+            weather.setPerceivedTemperature(weatherDTO.getPerceivedTemperature());
+        if (weatherDTO.getTemperature() != null)
+            weather.setTemperature(weatherDTO.getTemperature());
+        if (city.isPresent())
+            weather.setCity(city.get());
+        Weather updatedWeather = weatherRepository.save(weather);
+        return Optional.of(new WeatherDTO(updatedWeather));
+    }
+
+
+
+
 }
