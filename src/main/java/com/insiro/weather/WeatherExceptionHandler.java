@@ -11,12 +11,20 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Data
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
 class ErrorBody {
     long timestamp;
     int status;
     String message;
+
+    @Builder(builderMethodName = "fromException")
+    ErrorBody(ApplicationException exception, int status) {
+        this.timestamp = exception.getTimestamp();
+        this.message = exception.getMessage();
+        this.status = status;
+    }
+
 }
 
 @RestControllerAdvice
@@ -36,33 +44,29 @@ public class WeatherExceptionHandler {
     @ExceptionHandler(WeatherNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<ErrorBody> handleWeatherNotFoundException(WeatherNotFoundException ex) {
-        String msg = String.format("Weather Not Found (id : %d )", ex.getId());
-        ErrorBody body = ErrorBody.builder()
-                .timestamp(System.currentTimeMillis())
+        ErrorBody body = ErrorBody.fromException()
+                .exception(ex)
                 .status(HttpStatus.NOT_FOUND.value())
-                .message(msg).build();
+                .build();
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(CityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<ErrorBody> handleCityNotFoundException(CityNotFoundException ex) {
-        String what = (ex.getId() == null) ? "name : " + ex.getName() : String.format("id : %d", ex.getId());
-        String msg = String.format("City Not Found ( %s )", what);
-        ErrorBody body = ErrorBody.builder()
-                .timestamp(System.currentTimeMillis())
+        ErrorBody body = ErrorBody.fromException()
                 .status(HttpStatus.NOT_FOUND.value())
-                .message(msg).build();
+                .exception(ex)
+                .build();
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(CityNameConflictException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ResponseEntity<ErrorBody> handleCityNameConflictException(CityNameConflictException ex) {
-        ErrorBody body = ErrorBody.builder()
-                .timestamp(System.currentTimeMillis())
+        ErrorBody body = ErrorBody.fromException()
                 .status(HttpStatus.CONTINUE.value())
-                .message(String.format("City Name is Conflicted : %s", ex.getCityName()))
+                .exception(ex)
                 .build();
         return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }
