@@ -51,7 +51,7 @@ public class CityWeatherControllerTest extends AbstractControllerTest {
         Mockito.when(weatherService.getWeathers(city)).thenReturn(weatherList);
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .get(String.format("/cities/%s", city.getName())))
+                        .get(String.format("/cities/%s/weathers", city.getName())))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$").isArray());
     }

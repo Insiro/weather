@@ -9,15 +9,14 @@ import com.insiro.weather.service.CityService;
 import com.insiro.weather.service.WeatherService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Controller
-@RequestMapping("cities/{cityName}")
+@RestController
+@RequestMapping("/cities/{cityName}/weathers")
 public class CityWeatherController {
     private final WeatherService weatherService;
     private final CityService cityService;
