@@ -18,11 +18,10 @@ class ErrorBody {
     int status;
     String message;
 
-    @Builder(builderMethodName = "fromException")
-    ErrorBody(ApplicationException exception, int status) {
+    public ErrorBody(ApplicationException exception) {
         this.timestamp = exception.getTimestamp();
         this.message = exception.getMessage();
-        this.status = status;
+        this.status = exception.getStatus().value();
     }
 
 }
@@ -40,34 +39,10 @@ public class WeatherExceptionHandler {
 
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
-    @ExceptionHandler(WeatherNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<ErrorBody> handleWeatherNotFoundException(WeatherNotFoundException ex) {
-        ErrorBody body = ErrorBody.fromException()
-                .exception(ex)
-                .status(HttpStatus.NOT_FOUND.value())
-                .build();
-        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(CityNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<ErrorBody> handleCityNotFoundException(CityNotFoundException ex) {
-        ErrorBody body = ErrorBody.fromException()
-                .status(HttpStatus.NOT_FOUND.value())
-                .exception(ex)
-                .build();
-        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(CityNameConflictException.class)
+    @ExceptionHandler(ApplicationException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ResponseEntity<ErrorBody> handleCityNameConflictException(CityNameConflictException ex) {
-        ErrorBody body = ErrorBody.fromException()
-                .status(HttpStatus.CONTINUE.value())
-                .exception(ex)
-                .build();
-        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+    public ResponseEntity<ErrorBody> handleApplicationException(ApplicationException ex) {
+        ErrorBody body = new ErrorBody(ex);
+        return new ResponseEntity<>(body, ex.getStatus());
     }
 }
