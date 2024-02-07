@@ -19,7 +19,7 @@ public class CityService {
     }
 
     public City addCity(CityDTO cityDTO) {
-        if (this.getCityByName(cityDTO.getName()).isEmpty())
+        if (this.getCityByName(cityDTO.getName()).isPresent())
             throw new CityNameConflictException(cityDTO.getName());
 
         City city =createCityFromDTO(cityDTO);
@@ -37,12 +37,13 @@ public class CityService {
         Optional<City> optionalCity = getCityByName(cityName);
         if (optionalCity.isEmpty())
             throw new CityNotFoundException(cityName);
-        if (getCityByName(cityName).isPresent())
+        String newName = cityDTO.getName();
+        if (getCityByName(newName).isPresent())
             throw new CityNameConflictException(cityName);
 
-        City newCity = createCityFromDTO(cityDTO);
-        newCity.setId(optionalCity.get().getId());
-        return cityRepository.save(newCity);
+        City city = optionalCity.get();
+        city.setName(newName);
+        return cityRepository.save(city);
     }
     public City createCityFromDTO(CityDTO cityDTO) {
         City city = new City();
