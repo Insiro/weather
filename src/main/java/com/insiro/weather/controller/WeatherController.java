@@ -31,9 +31,8 @@ public class WeatherController {
     @PostMapping
     public ResponseEntity<WeatherDTO> newWeather(@RequestBody NewWeatherDTO newWeatherDTO) {
         Optional<City> city = this.cityService.getCityByName(newWeatherDTO.getCityName());
-        if (city.isEmpty())throw  new CityNotFoundException(newWeatherDTO.getCityName());
+        if (city.isEmpty()) throw new CityNotFoundException(newWeatherDTO.getCityName());
         Weather weather = this.weatherService.createWeather(city.get(), newWeatherDTO);
-
         return new ResponseEntity<>(new WeatherDTO(weather), HttpStatus.CREATED);
     }
 
@@ -59,17 +58,17 @@ public class WeatherController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<WeatherDTO> updateWeather(@PathVariable long id, @RequestBody UpdateWeatherDTO updateWeatherDTO) {
-        Optional<City> city ;
-        if (updateWeatherDTO.getCityName() !=null) {
+        Optional<City> city;
+        if (updateWeatherDTO.getCityName() != null) {
             city = cityService.getCityByName(updateWeatherDTO.getCityName());
-            if (city.isEmpty())throw  new CityNotFoundException(updateWeatherDTO.getCityName());
-        }
-        else city = Optional.empty();
+            if (city.isEmpty()) throw new CityNotFoundException(updateWeatherDTO.getCityName());
+        } else city = Optional.empty();
 
-        Optional<WeatherDTO> weatherDTO = weatherService.updateWeather(id, updateWeatherDTO, city);
-        if (weatherDTO.isEmpty())
+        Optional<Weather> weather = weatherService.updateWeather(id, updateWeatherDTO, city);
+        if (weather.isEmpty())
             throw new WeatherNotFoundException(id);
-        return new ResponseEntity<>(weatherDTO.get(), HttpStatus.OK);
+        WeatherDTO dto = new WeatherDTO(weather.get());
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
 }

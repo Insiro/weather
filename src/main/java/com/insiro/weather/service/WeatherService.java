@@ -2,7 +2,6 @@ package com.insiro.weather.service;
 
 import com.insiro.weather.domain.dto.NewWeatherDTO;
 import com.insiro.weather.domain.dto.UpdateWeatherDTO;
-import com.insiro.weather.domain.dto.WeatherDTO;
 import com.insiro.weather.domain.model.City;
 import com.insiro.weather.domain.model.Weather;
 import com.insiro.weather.repository.WeatherRepository;
@@ -27,7 +26,7 @@ public class WeatherService {
         return weatherRepository.findAll();
     }
 
-    public List<Weather> getWeathers(City city){
+    public List<Weather> getWeathers(City city) {
         return weatherRepository.findByCity(city);
     }
 
@@ -46,7 +45,7 @@ public class WeatherService {
         this.weatherRepository.deleteById(id);
     }
 
-    public Optional<WeatherDTO> updateWeather(Long id, UpdateWeatherDTO weatherDTO, Optional<City> city) {
+    public Optional<Weather> updateWeather(Long id, UpdateWeatherDTO weatherDTO, Optional<City> city) {
         Optional<Weather> optionalWeather = weatherRepository.findById(id);
         if (optionalWeather.isEmpty())
             return Optional.empty();
@@ -64,10 +63,8 @@ public class WeatherService {
         if (city.isPresent())
             weather.setCity(city.get());
         Weather updatedWeather = weatherRepository.save(weather);
-        return Optional.of(new WeatherDTO(updatedWeather));
+        return Optional.of(updatedWeather);
     }
-
-
 
 
 }
