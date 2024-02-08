@@ -59,7 +59,13 @@ public class WeatherController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<WeatherDTO> updateWeather(@PathVariable long id, @RequestBody UpdateWeatherDTO updateWeatherDTO) {
-        Optional<City> city = cityService.getCityByName( updateWeatherDTO.getCityName());
+        Optional<City> city ;
+        if (updateWeatherDTO.getCityName() !=null) {
+            city = cityService.getCityByName(updateWeatherDTO.getCityName());
+            if (city.isEmpty())throw  new CityNotFoundException(updateWeatherDTO.getCityName());
+        }
+        else city = Optional.empty();
+
         Optional<WeatherDTO> weatherDTO = weatherService.updateWeather(id, updateWeatherDTO, city);
         if (weatherDTO.isEmpty())
             throw new WeatherNotFoundException(id);
